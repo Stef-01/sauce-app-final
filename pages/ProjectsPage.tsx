@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { Project } from '../types';
+// FIX: Corrected import path for ProjectCard
 import { ProjectCard } from '../components/ProjectCard';
+// FIX: Corrected import to point to the file that exports PostProjectModal
 import { PostProjectModal } from '../components/PostProjectModal';
+import { ProjectDetailModal } from '../components/ProjectDetailModal';
 
 interface ProjectsPageProps {
     projects: Project[];
+    // FIX: Updated addProject to be async
     addProject: (project: Omit<Project, 'id' | 'logo' | 'postedAt'>) => Promise<void>;
 }
 
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({ projects, addProject }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredProjects = projects.filter(project =>
@@ -18,6 +23,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ projects, addProject
         project.location.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // FIX: Updated handleAddProject to be async
     const handleAddProject = async (project: Omit<Project, 'id' | 'logo' | 'postedAt'>) => {
         await addProject(project);
         setIsModalOpen(false);
@@ -45,11 +51,12 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ projects, addProject
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.map(project => (
-                    <ProjectCard key={project.id} project={project} />
+                    <ProjectCard key={project.id} project={project} onClick={() => setSelectedProject(project)} />
                 ))}
             </div>
 
             {isModalOpen && <PostProjectModal onClose={() => setIsModalOpen(false)} onAddProject={handleAddProject} />}
+            {selectedProject && <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
         </div>
     );
 };

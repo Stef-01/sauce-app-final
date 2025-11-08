@@ -1,0 +1,1 @@
+full contents of planning-v2.md
