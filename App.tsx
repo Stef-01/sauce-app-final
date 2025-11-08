@@ -1,56 +1,57 @@
 import React, { useState } from 'react';
 import { Background } from './components/Background';
-import { Footer } from './components/Footer';
-import { Internship, ForumPost, Page } from './types';
-import { mockInternships, mockPosts, mockBuzz } from './mockData';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 import { CommunityPage } from './pages/CommunityPage';
 import { InternshipsPage } from './pages/InternshipsPage';
 import { BuzzPage } from './pages/BuzzPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { ProjectRefinerPage } from './pages/ProjectRefinerPage';
+import { Page, Internship } from './types';
+import { mockInternships, mockForumPosts } from './mockData';
 
-const App: React.FC = () => {
-  const [internships, setInternships] = useState<Internship[]>(mockInternships);
-  const [posts, setPosts] = useState<ForumPost[]>(mockPosts);
-  const [currentPage, setCurrentPage] = useState<Page>('Community');
+function App() {
+    const [currentPage, setCurrentPage] = useState<Page>('Community');
+    const [internships, setInternships] = useState<Internship[]>(mockInternships);
 
-  const addInternship = (newInternship: Omit<Internship, 'id' | 'postedAt' | 'logo'>) => {
-    const newEntry: Internship = {
-      id: `internship-${Date.now()}`,
-      postedAt: 'Just now',
-      logo: `https://logo.clearbit.com/${newInternship.company.toLowerCase().replace(/\s/g, '')}.com`,
-      ...newInternship,
+    const addInternship = (internship: Omit<Internship, 'id' | 'logo' | 'postedAt'>) => {
+        const newInternship: Internship = {
+            ...internship,
+            id: internships.length + 1,
+            logo: `https://i.pravatar.cc/48?u=${internship.company.replace(/\s/g, '')}`,
+            postedAt: 'Just now',
+            description: internship.description,
+        };
+        setInternships([newInternship, ...internships]);
     };
-    setInternships([newEntry, ...internships]);
-  };
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'Community':
-        return <CommunityPage internships={internships} posts={posts} />;
-      case 'Internships':
-        return <InternshipsPage internships={internships} onAddInternship={addInternship} />;
-      case 'Buzz':
-        return <BuzzPage posts={mockBuzz} />;
-      case 'Profile':
-        return <ProfilePage />;
-      default:
-        return <CommunityPage internships={internships} posts={posts} />;
-    }
-  };
+    const renderPage = () => {
+        switch (currentPage) {
+            case 'Community':
+                return <CommunityPage internships={internships} posts={mockForumPosts} />;
+            case 'Internships':
+                return <InternshipsPage internships={internships} addInternship={addInternship} />;
+            case 'Buzz':
+                return <BuzzPage posts={mockForumPosts} />;
+            case 'Project Refiner':
+                return <ProjectRefinerPage />;
+            case 'Profile':
+                return <ProfilePage />;
+            default:
+                return <CommunityPage internships={internships} posts={mockForumPosts} />;
+        }
+    };
 
-  return (
-    <div className="bg-gray-900 text-white box-border caret-transparent min-h-screen flex flex-col font-sans">
-      <Background />
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        <main className="flex-grow w-full max-w-screen-xl mx-auto px-4 md:px-10">
-          {renderPage()}
-        </main>
-        <Footer />
-      </div>
-    </div>
-  );
-};
+    return (
+        <div className="flex flex-col min-h-screen bg-[#111827] text-white">
+            <Background />
+            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+            <main className="flex-grow w-full max-w-screen-xl mx-auto px-4 md:px-10">
+                {renderPage()}
+            </main>
+            <Footer />
+        </div>
+    );
+}
 
 export default App;

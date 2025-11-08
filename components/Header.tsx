@@ -6,7 +6,8 @@ interface HeaderProps {
     setCurrentPage: (page: Page) => void;
 }
 
-const navItems: Page[] = ['Community', 'Internships', 'Buzz', 'Profile'];
+// Fix: Add 'Project Refiner' to the navigation.
+const navItems: Page[] = ['Community', 'Internships', 'Buzz', 'Project Refiner', 'Profile'];
 
 export const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage }) => {
     return (

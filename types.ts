@@ -1,18 +1,29 @@
-export interface Author {
+export interface User {
     name: string;
     avatar: string;
     title: string;
 }
 
+export interface Internship {
+    id: number;
+    title:string;
+    company: string;
+    logo: string;
+    location: string;
+    isRemote: boolean;
+    postedAt: string;
+    description: string;
+}
+
 export interface Comment {
-    author: Author;
-    content: string;
+    author: User;
+    text: string;
     timestamp: string;
 }
 
 export interface ForumPost {
-    id: string;
-    author: Author;
+    id: number;
+    author: User;
     timestamp: string;
     title: string;
     content: string;
@@ -21,15 +32,4 @@ export interface ForumPost {
     views: number;
 }
 
-export interface Internship {
-    id: string;
-    title: string;
-    company: string;
-    location: string;
-    description: string;
-    isRemote: boolean;
-    postedAt: string;
-    logo: string;
-}
-
-export type Page = 'Community' | 'Internships' | 'Buzz' | 'Profile';
+export type Page = 'Community' | 'Internships' | 'Buzz' | 'Profile' | 'Project Refiner' | 'Projects';
