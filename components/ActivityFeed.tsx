@@ -1,5 +1,7 @@
 import React from 'react';
+// FIX: Corrected import path for types
 import { ForumPost } from '../types';
+// FIX: Corrected import path for ForumPostCard component
 import { ForumPostCard } from './ForumPostCard';
 
 interface ActivityFeedProps {

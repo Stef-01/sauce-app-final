@@ -1,35 +1,52 @@
-export interface User {
-    name: string;
-    avatar: string;
-    title: string;
-}
-
-export interface Internship {
+export interface Project {
     id: number;
-    title:string;
+    title: string;
     company: string;
     logo: string;
     location: string;
     isRemote: boolean;
     postedAt: string;
     description: string;
-}
-
-export interface Comment {
-    author: User;
-    text: string;
-    timestamp: string;
+    technicalRequirements?: string;
+    skillsRequired?: string[];
+    estimatedDuration?: string;
+    projectScope?: string;
 }
 
 export interface ForumPost {
     id: number;
-    author: User;
-    timestamp: string;
+    author: string;
+    avatar: string;
+    postedAt: string;
     title: string;
     content: string;
-    likes: number;
-    comments: Comment[];
-    views: number;
+    upvotes: number;
+    comments: number;
 }
 
-export type Page = 'Community' | 'Internships' | 'Buzz' | 'Profile' | 'Project Refiner' | 'Projects';
+export interface Article {
+    id: number;
+    title: string;
+    summary: string;
+    imageUrl: string;
+    link: string;
+    source: string;
+    publishedAt: string;
+}
+
+export interface Wisdom {
+    id: number;
+    quote: string;
+    author: string;
+}
+
+export interface Event {
+    id: number;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    location: string;
+    organizer: string;
+    imageUrl?: string;
+}

@@ -1,37 +1,45 @@
 import React from 'react';
-import { Page } from '../types';
 
 interface HeaderProps {
-    currentPage: Page;
-    setCurrentPage: (page: Page) => void;
+    onNavigate: (page: string) => void;
+    activePage: string;
 }
 
-// Fix: Add 'Project Refiner' to the navigation.
-const navItems: Page[] = ['Community', 'Internships', 'Buzz', 'Project Refiner', 'Profile'];
+export const Header: React.FC<HeaderProps> = ({ onNavigate, activePage }) => {
+    const navItems = ['Community', 'Projects', 'Buzz', 'Events', 'Profile'];
 
-export const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage }) => {
+    const getLinkClass = (page: string) => {
+        return `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            activePage === page.toLowerCase()
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+        }`;
+    };
+
     return (
-        <header className="sticky top-0 z-20 bg-[#111827] bg-opacity-80 backdrop-blur-lg border-b border-gray-700/50">
-            <div className="flex items-center justify-between w-full max-w-screen-xl mx-auto px-4 md:px-10 py-3">
-                <h1 className="text-2xl font-bold text-white">
-                    University Hub
-                </h1>
-                <nav className="flex items-center space-x-2">
-                    {navItems.map((item) => (
-                        <button
-                            key={item}
-                            onClick={() => setCurrentPage(item)}
-                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${
-                                currentPage === item
-                                    ? 'bg-white text-black'
-                                    : 'bg-gray-700/50 text-white hover:bg-gray-600/50 border border-gray-600'
-                            }`}
-                        >
-                            {item}
-                        </button>
-                    ))}
-                </nav>
-            </div>
+        <header className="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40 w-full">
+            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0 text-white font-bold text-xl">
+                           CareerConnect
+                        </div>
+                    </div>
+                    <div className="hidden md:block">
+                        <div className="ml-10 flex items-baseline space-x-4">
+                            {navItems.map((item) => (
+                                <button
+                                    key={item}
+                                    onClick={() => onNavigate(item.toLowerCase())}
+                                    className={getLinkClass(item.toLowerCase())}
+                                >
+                                    {item}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </nav>
         </header>
     );
 };

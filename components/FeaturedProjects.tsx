@@ -1,9 +1,6 @@
 import React from 'react';
-// FIX: Corrected import path for types
 import { Project } from '../types';
-// FIX: Corrected import path for ProjectCard
-// Correcting import to point to the file that exports ProjectCard
-import { ProjectCard } from './InternshipCard';
+import { ProjectCard } from './ProjectCard';
 
 interface FeaturedProjectsProps {
     projects: Project[];

@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-// FIX: Corrected import path for types
 import { Project } from '../types';
-// FIX: Corrected import path for ProjectCard
-// Correcting import to point to the file that exports ProjectCard
-import { ProjectCard } from '../components/InternshipCard';
-// Correcting import to point to the file that exports PostProjectModal
-import { PostProjectModal } from '../components/PostInternshipModal';
+import { ProjectCard } from '../components/ProjectCard';
+import { PostProjectModal } from '../components/PostProjectModal';
 
 interface ProjectsPageProps {
     projects: Project[];
-    // FIX: Updated addProject to be async
     addProject: (project: Omit<Project, 'id' | 'logo' | 'postedAt'>) => Promise<void>;
 }
 
@@ -23,7 +18,6 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ projects, addProject
         project.location.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // FIX: Updated handleAddProject to be async
     const handleAddProject = async (project: Omit<Project, 'id' | 'logo' | 'postedAt'>) => {
         await addProject(project);
         setIsModalOpen(false);

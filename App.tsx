@@ -1,57 +1,64 @@
 import React, { useState } from 'react';
 import { Background } from './components/Background';
-import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { MainContent } from './components/MainContent';
 import { CommunityPage } from './pages/CommunityPage';
-import { InternshipsPage } from './pages/InternshipsPage';
+import { ProjectsPage } from './pages/ProjectsPage';
 import { BuzzPage } from './pages/BuzzPage';
-import { ProfilePage } from './pages/ProfilePage';
 import { ProjectRefinerPage } from './pages/ProjectRefinerPage';
-import { Page, Internship } from './types';
-import { mockInternships, mockForumPosts } from './mockData';
+import { ProfilePage } from './pages/ProfilePage';
+import { EventsPage } from './pages/EventsPage'; // Import EventsPage
+import { Project, ForumPost, Event } from './types'; // Import Event type
+import { mockProjects, mockForumPosts, mockArticles, mockWisdom, mockEvents } from './mockData'; // Import mockEvents
 
-function App() {
-    const [currentPage, setCurrentPage] = useState<Page>('Community');
-    const [internships, setInternships] = useState<Internship[]>(mockInternships);
+const App: React.FC = () => {
+    const [activePage, setActivePage] = useState('community');
 
-    const addInternship = (internship: Omit<Internship, 'id' | 'logo' | 'postedAt'>) => {
-        const newInternship: Internship = {
-            ...internship,
-            id: internships.length + 1,
-            logo: `https://i.pravatar.cc/48?u=${internship.company.replace(/\s/g, '')}`,
+    const [projects, setProjects] = useState<Project[]>(mockProjects);
+    const [forumPosts] = useState<ForumPost[]>(mockForumPosts);
+    const [events] = useState<Event[]>(mockEvents); // Add events state
+
+    const addProject = async (project: Omit<Project, 'id' | 'logo' | 'postedAt'>): Promise<void> => {
+        const newProject: Project = {
+            ...project,
+            id: projects.length + 1,
+            logo: `https://i.pravatar.cc/100?u=new${projects.length + 1}`,
             postedAt: 'Just now',
-            description: internship.description,
         };
-        setInternships([newInternship, ...internships]);
+        setProjects([newProject, ...projects]);
     };
 
+
     const renderPage = () => {
-        switch (currentPage) {
-            case 'Community':
-                return <CommunityPage internships={internships} posts={mockForumPosts} />;
-            case 'Internships':
-                return <InternshipsPage internships={internships} addInternship={addInternship} />;
-            case 'Buzz':
-                return <BuzzPage posts={mockForumPosts} />;
-            case 'Project Refiner':
+        switch (activePage) {
+            case 'community':
+                return <CommunityPage projects={projects} posts={forumPosts} />;
+            case 'projects':
+                return <ProjectsPage projects={projects} addProject={addProject} />;
+            case 'buzz':
+                return <BuzzPage articles={mockArticles} wisdoms={mockWisdom} />;
+            case 'refiner':
                 return <ProjectRefinerPage />;
-            case 'Profile':
+            case 'profile':
                 return <ProfilePage />;
+            case 'events': // Add case for events
+                return <EventsPage events={events} />;
             default:
-                return <CommunityPage internships={internships} posts={mockForumPosts} />;
+                return <CommunityPage projects={projects} posts={forumPosts} />;
         }
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#111827] text-white">
+        <div className="bg-black text-white min-h-screen flex flex-col font-sans">
             <Background />
-            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
-            <main className="flex-grow w-full max-w-screen-xl mx-auto px-4 md:px-10">
+            <Header onNavigate={setActivePage} activePage={activePage} />
+            <MainContent>
                 {renderPage()}
-            </main>
+            </MainContent>
             <Footer />
         </div>
     );
-}
+};
 
 export default App;

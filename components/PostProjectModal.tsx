@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-// FIX: Corrected import path for types
 import { Project } from '../types';
 import { refineTechnicalRequirements } from '../services/geminiService';
 
 interface PostProjectModalProps {
     onClose: () => void;
-    // FIX: Update onAddProject to handle promise
     onAddProject: (project: Omit<Project, 'id' | 'logo' | 'postedAt'>) => Promise<void>;
 }
 
@@ -46,7 +44,6 @@ export const PostProjectModal: React.FC<PostProjectModalProps> = ({ onClose, onA
         }
     };
 
-    // FIX: Make handleSubmit async to await onAddProject
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         

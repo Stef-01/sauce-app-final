@@ -1,5 +1,4 @@
 import React from 'react';
-// FIX: Corrected import path for types
 import { Project } from '../types';
 
 interface ProjectCardProps {

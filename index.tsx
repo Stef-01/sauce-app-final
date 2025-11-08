@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+// FIX: The App component is in the same directory.
 import App from './App';
 
 const rootElement = document.getElementById('root');
