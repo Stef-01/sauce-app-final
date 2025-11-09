@@ -12,16 +12,10 @@
         font-family: 'Inter', sans-serif;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0"
-  }
-}
-</script>
+    <!-- Removed importmap so Vite and the local node_modules versions of React/react-dom are used in dev mode.
+         Having an importmap pointing React to external CDNs can cause module resolution/mismatch and
+         lead to a blank page or runtime errors when running under Vite. If you intentionally need CDN
+         React in production, use a different production-only injection or configure it separately. -->
 </head>
   <body>
     <div id="root"></div>
