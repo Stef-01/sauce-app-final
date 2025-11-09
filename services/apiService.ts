@@ -2,33 +2,51 @@ import { supabase, DBProject, DBPostTemplate } from './supabaseClient';
 import { Project, Article, Wisdom } from '../types';
 
 export async function fetchProjects(): Promise<Project[]> {
-    const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('posted_at', { ascending: false });
+    try {
+        if (!supabase) {
+            console.warn('Supabase not initialized');
+            return [];
+        }
 
-    if (error) {
-        console.error('Error fetching projects:', error);
-        throw new Error('Failed to fetch projects');
+        const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .order('posted_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching projects:', error);
+            return [];
+        }
+
+        if (!data) {
+            return [];
+        }
+
+        return (data as DBProject[]).map(dbProject => ({
+            id: dbProject.project_id,
+            title: dbProject.project_title,
+            company: dbProject.company_name,
+            logo: dbProject.logo || `https://i.pravatar.cc/100?u=${dbProject.project_id}`,
+            location: dbProject.location || 'Location TBD',
+            isRemote: dbProject.is_remote,
+            postedAt: formatPostedAt(dbProject.posted_at),
+            description: dbProject.brief || '',
+            technicalRequirements: dbProject.required_skills?.join(', '),
+            skillsRequired: dbProject.required_skills || [],
+            estimatedDuration: dbProject.duration_weeks ? `${dbProject.duration_weeks} weeks` : undefined,
+            projectScope: dbProject.objectives?.join(' ') || undefined,
+        }));
+    } catch (err) {
+        console.error('Exception fetching projects:', err);
+        return [];
     }
-
-    return (data as DBProject[]).map(dbProject => ({
-        id: dbProject.project_id,
-        title: dbProject.project_title,
-        company: dbProject.company_name,
-        logo: dbProject.logo || `https://i.pravatar.cc/100?u=${dbProject.project_id}`,
-        location: dbProject.location || 'Location TBD',
-        isRemote: dbProject.is_remote,
-        postedAt: formatPostedAt(dbProject.posted_at),
-        description: dbProject.brief || '',
-        technicalRequirements: dbProject.required_skills?.join(', '),
-        skillsRequired: dbProject.required_skills || [],
-        estimatedDuration: dbProject.duration_weeks ? `${dbProject.duration_weeks} weeks` : undefined,
-        projectScope: dbProject.objectives?.join(' ') || undefined,
-    }));
 }
 
 export async function createProject(project: Omit<Project, 'id' | 'postedAt'>): Promise<Project> {
+    if (!supabase) {
+        throw new Error('Supabase not initialized');
+    }
+
     const dbProject = {
         company_name: project.company,
         project_title: project.title,
@@ -66,37 +84,60 @@ export async function createProject(project: Omit<Project, 'id' | 'postedAt'>): 
 }
 
 export async function fetchPostTemplatesByCategory(categoryName: string): Promise<DBPostTemplate[]> {
+    if (!supabase) {
+        console.warn('Supabase not initialized');
+        return [];
+    }
+
+    const { data: categories, error: catError } = await supabase
+        .from('post_categories')
+        .select('id')
+        .eq('name', categoryName)
+        .single();
+
+    if (catError || !categories) {
+        console.error('Error fetching category:', catError);
+        return [];
+    }
+
     const { data, error } = await supabase
         .from('post_templates')
-        .select(`
-            *,
-            post_categories!inner(name)
-        `)
-        .eq('post_categories.name', categoryName)
+        .select('*')
+        .eq('category_id', categories.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching post templates:', error);
-        throw new Error('Failed to fetch post templates');
+        return [];
     }
 
     return data as DBPostTemplate[];
 }
 
 export async function fetchAllPostTemplates(): Promise<DBPostTemplate[]> {
-    const { data, error } = await supabase
-        .from('post_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+    try {
+        if (!supabase) {
+            console.warn('Supabase not initialized');
+            return [];
+        }
 
-    if (error) {
-        console.error('Error fetching post templates:', error);
-        throw new Error('Failed to fetch post templates');
+        const { data, error } = await supabase
+            .from('post_templates')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching post templates:', error);
+            return [];
+        }
+
+        return data as DBPostTemplate[];
+    } catch (err) {
+        console.error('Exception fetching post templates:', err);
+        return [];
     }
-
-    return data as DBPostTemplate[];
 }
 
 export function convertTemplateToArticle(template: DBPostTemplate): Article {

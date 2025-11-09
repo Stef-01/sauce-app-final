@@ -25,6 +25,15 @@ const App: React.FC = () => {
 
     useEffect(() => {
         loadData();
+
+        const timeout = setTimeout(() => {
+            if (loading) {
+                console.warn('Data loading timeout - proceeding with empty state');
+                setLoading(false);
+            }
+        }, 5000);
+
+        return () => clearTimeout(timeout);
     }, []);
 
     const loadData = async () => {
@@ -34,19 +43,21 @@ const App: React.FC = () => {
                 fetchAllPostTemplates()
             ]);
 
-            setProjects(projectsData);
+            setProjects(projectsData || []);
 
-            const articlesData = templatesData
-                .filter(t => t.category_id === 1 || t.category_id === 2)
-                .slice(0, 6)
-                .map(convertTemplateToArticle);
-            setArticles(articlesData);
+            if (templatesData && templatesData.length > 0) {
+                const articlesData = templatesData
+                    .filter(t => t.category_id === 1 || t.category_id === 2)
+                    .slice(0, 6)
+                    .map(convertTemplateToArticle);
+                setArticles(articlesData);
 
-            const wisdomsData = templatesData
-                .filter(t => t.category_id === 3)
-                .slice(0, 4)
-                .map(convertTemplateToWisdom);
-            setWisdoms(wisdomsData);
+                const wisdomsData = templatesData
+                    .filter(t => t.category_id === 3)
+                    .slice(0, 4)
+                    .map(convertTemplateToWisdom);
+                setWisdoms(wisdomsData);
+            }
         } catch (error) {
             console.error('Error loading data:', error);
         } finally {

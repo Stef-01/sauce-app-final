@@ -3,11 +3,19 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
+let supabaseInstance: ReturnType<typeof createClient> | null = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+    try {
+        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    } catch (error) {
+        console.error('Failed to initialize Supabase:', error);
+    }
+} else {
+    console.warn('Supabase environment variables not configured');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = supabaseInstance as ReturnType<typeof createClient>;
 
 export interface DBProject {
     project_id: number;
