@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Background } from './components/Background';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
@@ -9,24 +9,59 @@ import { BuzzPage } from './pages/BuzzPage';
 import { ProjectRefinerPage } from './pages/ProjectRefinerPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EventsPage } from './pages/EventsPage'; // Import EventsPage
-import { Project, ForumPost, Event } from './types'; // Import Event type
-import { mockProjects, mockForumPosts, mockArticles, mockWisdom, mockEvents } from './mockData'; // Import mockEvents
+import { Project, ForumPost, Event, Article, Wisdom } from './types';
+import { mockForumPosts, mockEvents } from './mockData';
+import { fetchProjects, createProject, fetchAllPostTemplates, convertTemplateToArticle, convertTemplateToWisdom } from './services/apiService';
 
 const App: React.FC = () => {
     const [activePage, setActivePage] = useState('community');
 
-    const [projects, setProjects] = useState<Project[]>(mockProjects);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [forumPosts] = useState<ForumPost[]>(mockForumPosts);
-    const [events] = useState<Event[]>(mockEvents); // Add events state
+    const [events] = useState<Event[]>(mockEvents);
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [wisdoms, setWisdoms] = useState<Wisdom[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        try {
+            const [projectsData, templatesData] = await Promise.all([
+                fetchProjects(),
+                fetchAllPostTemplates()
+            ]);
+
+            setProjects(projectsData);
+
+            const articlesData = templatesData
+                .filter(t => t.category_id === 1 || t.category_id === 2)
+                .slice(0, 6)
+                .map(convertTemplateToArticle);
+            setArticles(articlesData);
+
+            const wisdomsData = templatesData
+                .filter(t => t.category_id === 3)
+                .slice(0, 4)
+                .map(convertTemplateToWisdom);
+            setWisdoms(wisdomsData);
+        } catch (error) {
+            console.error('Error loading data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const addProject = async (project: Omit<Project, 'id' | 'logo' | 'postedAt'>): Promise<void> => {
-        const newProject: Project = {
-            ...project,
-            id: projects.length + 1,
-            logo: `https://i.pravatar.cc/100?u=new${projects.length + 1}`,
-            postedAt: 'Just now',
-        };
-        setProjects([newProject, ...projects]);
+        try {
+            const newProject = await createProject(project);
+            setProjects([newProject, ...projects]);
+        } catch (error) {
+            console.error('Error adding project:', error);
+            throw error;
+        }
     };
 
 
@@ -37,7 +72,7 @@ const App: React.FC = () => {
             case 'projects':
                 return <ProjectsPage projects={projects} addProject={addProject} />;
             case 'buzz':
-                return <BuzzPage articles={mockArticles} wisdoms={mockWisdom} />;
+                return <BuzzPage articles={articles} wisdoms={wisdoms} />;
             case 'refiner':
                 return <ProjectRefinerPage />;
             case 'profile':
@@ -48,6 +83,17 @@ const App: React.FC = () => {
                 return <CommunityPage projects={projects} posts={forumPosts} />;
         }
     };
+
+    if (loading) {
+        return (
+            <div className="bg-black text-white min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                    <p className="text-gray-400">Loading CareerConnect...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-black text-white min-h-screen flex flex-col font-sans">
