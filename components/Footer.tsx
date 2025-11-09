@@ -10,11 +10,6 @@ export const Footer: React.FC = () => {
                     src="https://c.animaapp.com/mhqpk9sal3ySkH/assets/8.png"
                     className="text-transparent aspect-[auto_32_/_32] box-border h-8 max-w-full object-contain w-8"
                 />
-                <span className="text-white/80 text-lg font-semibold block leading-[25.2px]">
-                    <a href="#" className="text-white items-stretch">
-                        Create an Internship for free 🎉
-                    </a>
-                </span>
                 <div className="items-center box-border caret-transparent gap-x-4 flex flex-row-reverse gap-y-4 ml-0 md:gap-x-6 md:flex-row md:gap-y-6 md:ml-auto">
                     <span className="text-white/80 text-lg font-semibold block leading-[25.2px]">
                         <a href="#" className="text-white items-stretch">

@@ -284,6 +284,26 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
         return images[index];
     };
 
+    // Generate connection reason based on profile
+    const getConnectionReason = (): string => {
+        if (card.willing_to_mentor && card.current_company) {
+            return `Great mentor opportunity - has experience at ${card.current_company}`;
+        }
+        if (card.is_alumni && card.current_company) {
+            return `Alumni connection with valuable insights from ${card.current_company}`;
+        }
+        if (card.is_student && card.skill_tags && card.skill_tags.length > 0) {
+            return `Shared interests in ${card.skill_tags[0]} - great collaboration potential`;
+        }
+        if (card.current_title && card.current_company) {
+            return `Excellent networking opportunity in ${card.current_title} role`;
+        }
+        if (card.skill_tags && card.skill_tags.length > 0) {
+            return `Common ground in ${card.skill_tags[0]} and related fields`;
+        }
+        return 'Great addition to your professional network';
+    };
+
     const displayImage = card.avatar || getPlaceholderImage();
 
     return (
@@ -297,7 +317,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
                     <img
                         src={displayImage}
                         alt={card.full_name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-top"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(card.full_name || 'User')}&size=600&background=gradient&color=fff&bold=true`;
@@ -348,8 +368,20 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
 
             {/* Bio/Headline */}
             {card.headline && (
-                <p className="text-white/80 text-sm mb-6 leading-relaxed">{card.headline}</p>
+                <p className="text-white/80 text-sm mb-4 leading-relaxed">{card.headline}</p>
             )}
+
+            {/* Connection Reason */}
+            <div className="mb-6 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <div className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <p className="text-blue-300 text-xs font-medium leading-relaxed">
+                        {getConnectionReason()}
+                    </p>
+                </div>
+            </div>
 
             {/* Skills */}
             {card.skill_tags && card.skill_tags.length > 0 && (
