@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
             <div className="box-border caret-transparent border-t-white/10 border-b-white/10 border-x-white border-t"></div>
             <div className="items-center box-border caret-transparent gap-x-4 flex flex-col gap-y-4 px-4 py-10 md:backdrop-blur-[45px] md:flex-row md:px-10">
                 <img
-                    alt="CareerConnect logo"
+                    alt="Sauce logo"
                     src="https://c.animaapp.com/mhqpk9sal3ySkH/assets/8.png"
                     className="text-transparent aspect-[auto_32_/_32] box-border h-8 max-w-full object-contain w-8"
                 />

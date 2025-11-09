@@ -6,7 +6,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onNavigate, activePage }) => {
-    const navItems = ['Community', 'Projects', 'Buzz', 'Events', 'Profile'];
+    const navItems = ['Community', 'Projects', 'Buzz', 'Events', 'Sauce', 'Profile'];
 
     const getLinkClass = (page: string) => {
         return `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, activePage }) => {
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
                         <div className="flex-shrink-0 text-white font-bold text-xl">
-                           CareerConnect
+                           Sauce
                         </div>
                     </div>
                     <div className="hidden md:block">
