@@ -10,6 +10,7 @@ import { ProjectRefinerPage } from './pages/ProjectRefinerPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EventsPage } from './pages/EventsPage';
 import { ElevatePage } from './pages/ElevatePage';
+import { SaucePage } from './pages/SaucePage';
 import { Project, ForumPost, Event } from './types';
 import { mockForumPosts, mockEvents } from './mockData';
 import { fetchProjects, createProject } from './services/apiService';
@@ -83,6 +84,8 @@ const App: React.FC = () => {
                 return <EventsPage events={events} />;
             case 'elevate':
                 return <ElevatePage onNavigate={setActivePage} />;
+            case 'sauce':
+                return <SaucePage />;
             default:
                 return <CommunityPage projects={projects} posts={forumPosts} onNavigate={setActivePage} />;
         }
@@ -93,7 +96,7 @@ const App: React.FC = () => {
             <div className="bg-black text-white min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                    <p className="text-gray-400">Loading CareerConnect...</p>
+                    <p className="text-gray-400">Loading Sauce...</p>
                 </div>
             </div>
         );

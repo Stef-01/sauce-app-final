@@ -269,43 +269,66 @@ interface ProfileCardProps {
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
+    // Use professional stock images from Unsplash as fallback
+    const getPlaceholderImage = () => {
+        // Generate consistent random image based on user data
+        const images = [
+            'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop',
+        ];
+        const index = (card.user_id || 0) % images.length;
+        return images[index];
+    };
+
+    const displayImage = card.avatar || getPlaceholderImage();
+
     return (
-        <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full flex flex-col shadow-2xl overflow-hidden">
+        <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-white/20 rounded-3xl overflow-hidden h-full flex flex-col shadow-2xl relative">
+            {/* Decorative gradient overlay */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none z-10" />
+
             {/* Header with Photo */}
-            <div className="mb-6">
-                {card.avatar ? (
-                    <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
-                        <img
-                            src={card.avatar}
-                            alt={card.full_name}
-                            className="w-full h-full object-cover"
-                        />
+            <div className="relative">
+                <div className="relative w-full h-72 overflow-hidden">
+                    <img
+                        src={displayImage}
+                        alt={card.full_name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(card.full_name || 'User')}&size=600&background=gradient&color=fff&bold=true`;
+                        }}
+                    />
+                    {/* Gradient overlay at bottom of image for text readability */}
+                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
+
+                    {/* Name overlay on image */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{card.full_name || card.title}</h2>
+                        <div className="flex items-center gap-2 text-white/80 text-sm drop-shadow-lg">
+                            {card.current_title && <span>{card.current_title}</span>}
+                            {card.current_company && (
+                                <>
+                                    <span className="opacity-60">•</span>
+                                    <span className="font-medium text-blue-300">{card.current_company}</span>
+                                </>
+                            )}
+                        </div>
+                        {card.grad_year && (
+                            <p className="text-sm text-white/60 mt-1 drop-shadow-lg">Class of {card.grad_year}</p>
+                        )}
                     </div>
-                ) : (
-                    <div className="w-full h-48 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4">
-                        <span className="text-4xl font-bold text-white/80">
-                            {(card.full_name || card.title || '?').charAt(0).toUpperCase()}
-                        </span>
-                    </div>
-                )}
-                
-                <h2 className="text-xl font-bold text-white mb-1">{card.full_name || card.title}</h2>
-                <div className="flex items-center gap-2 text-white/60 text-sm">
-                    {card.current_title && <span>{card.current_title}</span>}
-                    {card.current_company && (
-                        <>
-                            <span className="opacity-40">•</span>
-                            <span className="font-medium text-blue-400">{card.current_company}</span>
-                        </>
-                    )}
                 </div>
-                {card.grad_year && (
-                    <p className="text-sm text-white/40 mt-1">Class of {card.grad_year}</p>
-                )}
             </div>
 
-            {/* Badges */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* Content section with padding */}
+            <div className="px-6 py-5 flex flex-col flex-1">
+                {/* Badges */}
+                <div className="flex flex-wrap gap-2 mb-4">
                 {card.is_alumni && (
                     <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-medium">
                         Alumni
@@ -345,18 +368,19 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
                 </div>
             )}
 
-            {/* Footer Info */}
-            {card.location && (
-                <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-xs text-white/40 flex items-center gap-2">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {card.location}
-                    </p>
-                </div>
-            )}
+                {/* Footer Info */}
+                {card.location && (
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                        <p className="text-xs text-white/40 flex items-center gap-2">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {card.location}
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
