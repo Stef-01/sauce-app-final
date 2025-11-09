@@ -20,7 +20,7 @@ SELECT
   p.project_title,
   p.brief,
   p.primary_skill_tags,
-  up.profile_id,
+  up.user_id AS profile_id, -- Using user_id as profile_id for compatibility
   up.user_id,
   up.skill_tags,
   -- matched_tags: intersection of primary_skill_tags and profile skill_tags
@@ -67,8 +67,8 @@ GRANT EXECUTE ON FUNCTION refresh_mv_project_profile_matches() TO authenticated;
 -- Usage notes:
 -- 1) To refresh manually:
 --    SELECT refresh_mv_project_profile_matches();
--- 2) To get top matches for a profile_id:
---    SELECT * FROM mv_project_profile_matches WHERE profile_id = <id> ORDER BY match_count DESC, posted_at DESC;
+-- 2) To get top matches for a user_id (profile_id):
+--    SELECT * FROM mv_project_profile_matches WHERE profile_id = <user_id> ORDER BY match_count DESC, posted_at DESC;
 -- 3) For frequent real-time queries consider:
 --    - Refreshing the materialized view on a schedule (e.g., nightly) via a cron job or pg_cron.
 --    - Or implementing an incremental refresh approach that updates only changed projects or profiles.

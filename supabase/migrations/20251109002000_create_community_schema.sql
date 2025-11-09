@@ -33,9 +33,14 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   location TEXT,
   headline TEXT,
   seeking_roles TEXT[],
+  skill_tags TEXT[], -- For project matching (derived from user_skills or manually maintained)
   open_to_connect BOOLEAN NOT NULL DEFAULT TRUE,
-  last_active_at TIMESTAMPTZ
+  last_active_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Add GIN index for skill_tags array matching
+CREATE INDEX IF NOT EXISTS idx_user_profiles_skill_tags ON user_profiles USING GIN (skill_tags);
 
 -- Alumni specific
 CREATE TABLE IF NOT EXISTS alumni_details (
@@ -87,7 +92,7 @@ CREATE TABLE IF NOT EXISTS user_embeddings (
 -- Community cards
 CREATE TABLE IF NOT EXISTS community_cards (
   id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   subtitle TEXT,
   company TEXT,

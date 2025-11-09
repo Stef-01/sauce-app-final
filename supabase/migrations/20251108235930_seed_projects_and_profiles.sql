@@ -1,40 +1,13 @@
--- Seed Projects and create user_profiles table
+-- Seed Projects
 -- Migration: 20251108235930_seed_projects_and_profiles.sql
 
 /*
-  This migration seeds the existing `projects` table with curated project records
-  and creates a lightweight `user_profiles` table for storing skill tags (TEXT[])
-  which can be used for matching against `projects.primary_skill_tags`.
-
-  NOTE: The `projects` table is created in a prior migration. This file only
-  inserts rows into it so it is safe to apply on top of the existing schema.
+  This migration seeds the existing `projects` table with curated project records.
+  
+  NOTE: The `projects` table is created in a prior migration (20251108235657_create_projects_table.sql).
+  The `user_profiles` table is created in the community schema migration (20251109002000_create_community_schema.sql).
+  This file only inserts rows into projects so it is safe to apply on top of the existing schema.
 */
-
--- Create user_profiles table for matching demo
-CREATE TABLE IF NOT EXISTS user_profiles (
-  profile_id SERIAL PRIMARY KEY,
-  user_id TEXT UNIQUE,
-  full_name TEXT,
-  bio TEXT,
-  skill_tags TEXT[],
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Profiles are viewable by everyone"
-  ON user_profiles
-  FOR SELECT
-  TO public
-  USING (true);
-
-CREATE POLICY "Authenticated users can insert profiles"
-  ON user_profiles
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (true);
-
-CREATE INDEX IF NOT EXISTS idx_user_profiles_skill_tags ON user_profiles USING GIN (skill_tags);
 
 -- Seed projects
 INSERT INTO projects (

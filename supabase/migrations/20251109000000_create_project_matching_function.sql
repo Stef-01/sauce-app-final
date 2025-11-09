@@ -36,23 +36,5 @@ $$ LANGUAGE sql STABLE;
 -- Grant execute to authenticated role (Supabase convention may vary)
 GRANT EXECUTE ON FUNCTION match_projects_for_skill_tags(TEXT[]) TO authenticated;
 
--- Simple view for common use (optional)
-CREATE OR REPLACE VIEW vw_project_skill_matches AS
-SELECT
-  p.project_id,
-  p.company_name,
-  p.project_title,
-  p.brief,
-  p.primary_skill_tags,
-  (SELECT COUNT(*) FROM (SELECT UNNEST(p.primary_skill_tags) INTERSECT SELECT UNNEST(up.skill_tags)) AS common) AS match_count,
-  up.profile_id AS matched_profile_id
-FROM projects p
-CROSS JOIN LATERAL (
-  SELECT profile_id, skill_tags FROM user_profiles
-) up
-WHERE p.primary_skill_tags && up.skill_tags;
-
--- Create index on view columns is not applicable; rely on underlying table indexes.
-
--- Note: The view will show many rows (product of projects x profiles) for all matching profiles.
+-- Note: A view vw_project_skill_matches can be created after user_profiles table exists
 -- Use the function match_projects_for_skill_tags(...) when you want matches for a single profile's tags.

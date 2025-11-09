@@ -9,9 +9,9 @@ import { BuzzPage } from './pages/BuzzPage';
 import { ProjectRefinerPage } from './pages/ProjectRefinerPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EventsPage } from './pages/EventsPage'; // Import EventsPage
-import { Project, ForumPost, Event, Article, Wisdom } from './types';
+import { Project, ForumPost, Event } from './types';
 import { mockForumPosts, mockEvents } from './mockData';
-import { fetchProjects, createProject, fetchAllPostTemplates, convertTemplateToArticle, convertTemplateToWisdom } from './services/apiService';
+import { fetchProjects, createProject } from './services/apiService';
 
 const App: React.FC = () => {
     const [activePage, setActivePage] = useState('community');
@@ -19,8 +19,6 @@ const App: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [forumPosts] = useState<ForumPost[]>(mockForumPosts);
     const [events] = useState<Event[]>(mockEvents);
-    const [articles, setArticles] = useState<Article[]>([]);
-    const [wisdoms, setWisdoms] = useState<Wisdom[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -38,30 +36,22 @@ const App: React.FC = () => {
 
     const loadData = async () => {
         try {
-            const [projectsData, templatesData] = await Promise.all([
-                fetchProjects(),
-                fetchAllPostTemplates()
-            ]);
+            console.log('🚀 Starting to load data from Supabase...');
+            const projectsData = await fetchProjects();
+
+            console.log('📊 Projects loaded:', projectsData?.length || 0);
 
             setProjects(projectsData || []);
 
-            if (templatesData && templatesData.length > 0) {
-                const articlesData = templatesData
-                    .filter(t => t.category_id === 1 || t.category_id === 2)
-                    .slice(0, 6)
-                    .map(convertTemplateToArticle);
-                setArticles(articlesData);
-
-                const wisdomsData = templatesData
-                    .filter(t => t.category_id === 3)
-                    .slice(0, 4)
-                    .map(convertTemplateToWisdom);
-                setWisdoms(wisdomsData);
+            if (!projectsData || projectsData.length === 0) {
+                console.warn('⚠️ No projects loaded - check Supabase connection and RLS policies');
             }
         } catch (error) {
-            console.error('Error loading data:', error);
+            console.error('❌ Error loading data:', error);
+            console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
         } finally {
             setLoading(false);
+            console.log('✅ Data loading completed');
         }
     };
 
@@ -83,7 +73,7 @@ const App: React.FC = () => {
             case 'projects':
                 return <ProjectsPage projects={projects} addProject={addProject} />;
             case 'buzz':
-                return <BuzzPage articles={articles} wisdoms={wisdoms} />;
+                return <BuzzPage />;
             case 'refiner':
                 return <ProjectRefinerPage />;
             case 'profile':

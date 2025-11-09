@@ -1,38 +1,12 @@
--- Create Connect content layer schema and seed initial templates
+-- Seed Connect content layer templates
+-- Migration: 20251108235931_create_connect_content_schema.sql
 
--- Categories for templates (general prompts, alumni signals, essays)
-CREATE TABLE post_categories (
-    id              SERIAL PRIMARY KEY,
-    name            TEXT UNIQUE NOT NULL,
-    description     TEXT
-);
-
--- Tags for lightweight discovery and ranking
-CREATE TABLE tags (
-    id              SERIAL PRIMARY KEY,
-    name            TEXT UNIQUE NOT NULL
-);
-
--- Post templates used to seed and recommend content
-CREATE TABLE post_templates (
-    id                  SERIAL PRIMARY KEY,
-    category_id         INTEGER NOT NULL REFERENCES post_categories(id) ON DELETE RESTRICT,
-    title               TEXT NOT NULL,
-    body_template       TEXT NOT NULL,
-    min_words           INTEGER,
-    max_words           INTEGER,
-    target_audience     TEXT,              -- e.g. "students", "alumni", "hiring_managers"
-    tone                TEXT,              -- e.g. "casual", "direct", "reflective"
-    is_active           BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- Many to many: templates <-> tags
-CREATE TABLE post_template_tags (
-    template_id         INTEGER NOT NULL REFERENCES post_templates(id) ON DELETE CASCADE,
-    tag_id              INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-    PRIMARY KEY (template_id, tag_id)
-);
+/*
+  This migration seeds data into the post_categories, tags, post_templates, and post_template_tags tables.
+  
+  NOTE: These tables are created in a prior migration (20251108235804_create_blog_content_tables.sql).
+  This file only inserts seed data so it is safe to apply on top of the existing schema.
+*/
 
 -- Seed Categories
 INSERT INTO post_categories (name, description) VALUES
@@ -253,9 +227,3 @@ FROM t_big_name, (
     UNION SELECT tag_id FROM tag_signal
 ) tags
 ON CONFLICT DO NOTHING;
-
--- Add indexes for performance
-CREATE INDEX idx_post_templates_category ON post_templates(category_id);
-CREATE INDEX idx_post_templates_active ON post_templates(is_active);
-CREATE INDEX idx_template_tags_template ON post_template_tags(template_id);
-CREATE INDEX idx_template_tags_tag ON post_template_tags(tag_id);

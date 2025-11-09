@@ -1,21 +1,48 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Fallback values (for development - these match your Supabase project)
+const DEFAULT_SUPABASE_URL = 'https://wgegjkrshihackpaydcz.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZWdqa3JzaGloYWNrcGF5ZGN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2Mzc4MDAsImV4cCI6MjA3ODIxMzgwMH0.4P6lgXT3ZT_dyA84nw8YGnfqJiXBzhAmSCq2qFcjG1g';
 
-let supabaseInstance: ReturnType<typeof createClient> | null = null;
+// Get values from environment or use defaults
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
 
-if (supabaseUrl && supabaseAnonKey) {
+// Initialize Supabase client
+const supabaseInstance: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+    },
+});
+
+console.log('✅ Supabase client initialized');
+console.log('📡 Supabase URL:', supabaseUrl);
+console.log('🔑 Using anon key:', supabaseAnonKey.substring(0, 20) + '...');
+
+// Export the client
+export const supabase = supabaseInstance;
+
+// Helper to check if Supabase is ready (always true since we always initialize)
+export const isSupabaseReady = (): boolean => {
+    return true;
+};
+
+// Test connection function
+export const testSupabaseConnection = async (): Promise<boolean> => {
     try {
-        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-    } catch (error) {
-        console.error('Failed to initialize Supabase:', error);
+        const { data, error } = await supabase.from('projects').select('count').limit(1);
+        if (error) {
+            console.error('❌ Supabase connection test failed:', error);
+            return false;
+        }
+        console.log('✅ Supabase connection test successful');
+        return true;
+    } catch (err) {
+        console.error('❌ Supabase connection test error:', err);
+        return false;
     }
-} else {
-    console.warn('Supabase environment variables not configured');
-}
-
-export const supabase = supabaseInstance as ReturnType<typeof createClient>;
+};
 
 export interface DBProject {
     project_id: number;
@@ -61,4 +88,37 @@ export interface DBPostCategory {
 export interface DBTag {
     id: number;
     name: string;
+}
+
+export interface DBPost {
+    id: number;
+    university_id: number | null;
+    author_id: number | null;
+    body: string;
+    media_url: string | null;
+    score: number;
+    category_id: number | null;
+    template_id: number | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface DBVote {
+    id: number;
+    user_id: number;
+    post_id: number;
+    direction: number;
+    created_at: string;
+}
+
+export interface DBComment {
+    id: number;
+    post_id: number;
+    author_id: number | null;
+    body: string;
+    media_url: string | null;
+    score: number;
+    parent_comment_id: number | null;
+    created_at: string;
+    updated_at: string;
 }
