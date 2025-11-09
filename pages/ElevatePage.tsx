@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CommunityCard } from '../types';
 import { fetchCommunityCards, recordSwipe, getSuggestedConnections } from '../services/apiService';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 
 interface ElevatePageProps {
     onNavigate?: (page: string) => void;
@@ -10,10 +11,30 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
     const [cards, setCards] = useState<CommunityCard[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-    const [isDragging, setIsDragging] = useState(false);
-    const cardRef = useRef<HTMLDivElement>(null);
+    const [exitX, setExitX] = useState(0);
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    
+    // Transform values
+    const rotate = useTransform(x, [-300, 0, 300], [-45, 0, 45]);
+    const scale = useTransform(x, [-300, 0, 300], [0.9, 1, 0.9]);
+    
+    // Indicator opacities
+    const likeOpacity = useTransform(x, [0, 125], [0, 1]);
+    const nopeOpacity = useTransform(x, [-125, 0], [1, 0]);
+
+    // Card background
+    const background = useTransform(
+        x,
+        [-300, -100, 0, 100, 300],
+        [
+            'rgba(239, 68, 68, 0.1)',  // Red for nope
+            'rgba(239, 68, 68, 0.05)',
+            'rgba(255, 255, 255, 0)',  // Neutral
+            'rgba(34, 197, 94, 0.05)',
+            'rgba(34, 197, 94, 0.1)'   // Green for like
+        ]
+    );
 
     useEffect(() => {
         loadCards();
@@ -37,60 +58,37 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
         if (currentIndex >= cards.length) return;
 
         const currentCard = cards[currentIndex];
-        // TODO: Get actual user ID from auth
-        const userId = 1; // Placeholder
+        const userId = 1; // TODO: Get from auth
 
         await recordSwipe(userId, currentCard.user_id, direction);
 
-        // Move to next card
         if (currentIndex < cards.length - 1) {
             setCurrentIndex(currentIndex + 1);
-            setDragOffset({ x: 0, y: 0 });
+            x.set(0);
+            y.set(0);
         } else {
-            // Reload cards if we've swiped through all
-            loadCards();
+            await loadCards();
         }
     };
 
-    const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-        setDragStart({ x: clientX, y: clientY });
-        setIsDragging(true);
-    };
-
-    const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
-        if (!isDragging) return;
+        const handleDragEnd = (event: any, info: any) => {
+        const swipe = info.offset.x;
+        const velocity = info.velocity.x;
+        const swipeThreshold = 100;
         
-        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-        
-        const offsetX = clientX - dragStart.x;
-        const offsetY = clientY - dragStart.y;
-        
-        setDragOffset({ x: offsetX, y: offsetY });
-    };
-
-    const handleDragEnd = () => {
-        setIsDragging(false);
-        
-        // Determine swipe direction
-        const threshold = 100;
-        if (Math.abs(dragOffset.x) > threshold) {
-            if (dragOffset.x > 0) {
-                handleSwipe('like');
-            } else {
-                handleSwipe('pass');
-            }
+        // Check if the card was swiped fast enough or far enough
+        if (Math.abs(swipe) > swipeThreshold || Math.abs(velocity) > 800) {
+            const direction = swipe > 0 ? 'like' : 'pass';
+            setExitX(direction === 'like' ? 300 : -300);
+            handleSwipe(direction);
         } else {
-            // Snap back
-            setDragOffset({ x: 0, y: 0 });
+            // Reset position if not swiped enough
+            x.set(0);
+            y.set(0);
         }
     };
 
     const currentCard = cards[currentIndex];
-    const rotation = dragOffset.x * 0.1;
-    const opacity = 1 - Math.abs(dragOffset.x) / 300;
 
     if (loading) {
         return (
@@ -139,66 +137,113 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
 
             {/* Card Stack */}
             <div className="relative h-[600px] mb-6">
-                {/* Next card (background) */}
-                {cards[currentIndex + 1] && (
-                    <div className="absolute inset-0 transform scale-95 opacity-50">
-                        <ProfileCard card={cards[currentIndex + 1]} />
-                    </div>
-                )}
+                <AnimatePresence>
+                    {/* Next card (background) */}
+                    {cards[currentIndex + 1] && (
+                        <motion.div
+                            className="absolute inset-0"
+                            initial={{ scale: 0.95, opacity: 0.5 }}
+                            animate={{ scale: 0.95, opacity: 0.5 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                        >
+                            <ProfileCard card={cards[currentIndex + 1]} />
+                        </motion.div>
+                    )}
 
-                {/* Current card */}
-                <div
-                    ref={cardRef}
-                    className="absolute inset-0 cursor-grab active:cursor-grabbing"
-                    style={{
-                        transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${rotation}deg)`,
-                        opacity: opacity,
-                        transition: isDragging ? 'none' : 'transform 0.3s ease-out, opacity 0.3s ease-out',
-                    }}
-                    onMouseDown={handleDragStart}
-                    onMouseMove={handleDragMove}
-                    onMouseUp={handleDragEnd}
-                    onMouseLeave={handleDragEnd}
-                    onTouchStart={handleDragStart}
-                    onTouchMove={handleDragMove}
-                    onTouchEnd={handleDragEnd}
-                >
-                    <ProfileCard card={currentCard} />
-                </div>
-
-                {/* Swipe indicators */}
-                {Math.abs(dragOffset.x) > 50 && (
-                    <div
-                        className={`absolute top-1/2 transform -translate-y-1/2 z-10 text-4xl font-bold ${
-                            dragOffset.x > 0 ? 'left-8 text-green-500' : 'right-8 text-red-500'
-                        }`}
+                    {/* Current card */}
+                    <motion.div
+                        key={currentIndex}
+                        className="absolute inset-0 cursor-grab active:cursor-grabbing"
+                        style={{
+                            x,
+                            y,
+                            rotate,
+                            scale,
+                            background
+                        }}
+                        drag="x"
+                        dragConstraints={{ left: -1000, right: 1000, top: 0, bottom: 0 }}
+                        dragElastic={0.7}
+                        onDragEnd={handleDragEnd}
+                        whileDrag={{ cursor: "grabbing" }}
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ 
+                            x: exitX,
+                            opacity: 0,
+                            scale: 0.9,
+                            transition: { duration: 0.2 }
+                        }}
+                        transition={{
+                            type: "spring",
+                            damping: 20,
+                            stiffness: 300
+                        }}
                     >
-                        {dragOffset.x > 0 ? '✓' : '✕'}
-                    </div>
-                )}
+                        <ProfileCard card={currentCard} />
+                    </motion.div>
+
+                    {/* Like Indicator */}
+                    <motion.div
+                        className="absolute top-1/2 left-8 transform -translate-y-1/2 z-10"
+                        style={{ opacity: likeOpacity }}
+                    >
+                        <div className="flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full">
+                            <span className="text-2xl text-emerald-500">✓</span>
+                        </div>
+                    </motion.div>
+
+                    {/* Nope Indicator */}
+                    <motion.div
+                        className="absolute top-1/2 right-8 transform -translate-y-1/2 z-10"
+                        style={{ opacity: nopeOpacity }}
+                    >
+                        <div className="flex items-center justify-center w-16 h-16 bg-rose-500/20 rounded-full">
+                            <span className="text-2xl text-rose-500">✕</span>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-center space-x-8">
-                <button
-                    onClick={() => handleSwipe('pass')}
-                    className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-2xl font-bold transition-transform hover:scale-110"
+            <div className="flex justify-center items-center gap-6">
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                        setExitX(-300);
+                        handleSwipe('pass');
+                    }}
+                    className="w-14 h-14 rounded-full bg-rose-500/20 hover:bg-rose-500/30 backdrop-blur-xl flex items-center justify-center text-rose-500 transition-colors"
                     aria-label="Pass"
                 >
-                    ✕
-                </button>
-                <button
-                    onClick={() => handleSwipe('like')}
-                    className="w-16 h-16 rounded-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-2xl font-bold transition-transform hover:scale-110"
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </motion.button>
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                        setExitX(300);
+                        handleSwipe('like');
+                    }}
+                    className="w-14 h-14 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 backdrop-blur-xl flex items-center justify-center text-emerald-500 transition-colors"
                     aria-label="Like"
                 >
-                    ✓
-                </button>
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </motion.button>
             </div>
 
             {/* Progress indicator */}
-            <div className="mt-6 text-center text-gray-400 text-sm">
-                {currentIndex + 1} of {cards.length} profiles
+            <div className="mt-4 text-center">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 backdrop-blur-xl">
+                    <span className="text-sm text-white/60">
+                        {currentIndex + 1} of {cards.length}
+                    </span>
+                </div>
             </div>
         </div>
     );
@@ -210,69 +255,73 @@ interface ProfileCardProps {
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
     return (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 h-full flex flex-col shadow-2xl">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-                <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-white mb-2">{card.full_name || card.title}</h2>
-                    <div className="flex items-center space-x-2 text-gray-400">
-                        {card.current_title && (
-                            <span className="text-sm">{card.current_title}</span>
-                        )}
-                        {card.current_company && (
-                            <>
-                                <span>@</span>
-                                <span className="text-sm font-semibold text-blue-400">{card.current_company}</span>
-                            </>
-                        )}
+        <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full flex flex-col shadow-2xl overflow-hidden">
+            {/* Header with Photo */}
+            <div className="mb-6">
+                {card.avatar ? (
+                    <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
+                        <img
+                            src={card.avatar}
+                            alt={card.full_name}
+                            className="w-full h-full object-cover"
+                        />
                     </div>
-                    {card.grad_year && (
-                        <p className="text-sm text-gray-500 mt-1">Class of {card.grad_year}</p>
+                ) : (
+                    <div className="w-full h-48 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4">
+                        <span className="text-4xl font-bold text-white/80">
+                            {(card.full_name || card.title || '?').charAt(0).toUpperCase()}
+                        </span>
+                    </div>
+                )}
+                
+                <h2 className="text-xl font-bold text-white mb-1">{card.full_name || card.title}</h2>
+                <div className="flex items-center gap-2 text-white/60 text-sm">
+                    {card.current_title && <span>{card.current_title}</span>}
+                    {card.current_company && (
+                        <>
+                            <span className="opacity-40">•</span>
+                            <span className="font-medium text-blue-400">{card.current_company}</span>
+                        </>
                     )}
                 </div>
-                <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold">
-                    {(card.full_name || card.title).charAt(0).toUpperCase()}
-                </div>
+                {card.grad_year && (
+                    <p className="text-sm text-white/40 mt-1">Class of {card.grad_year}</p>
+                )}
             </div>
 
-            {/* Headline */}
-            {card.headline && (
-                <p className="text-gray-300 mb-6 italic">"{card.headline}"</p>
-            )}
-
             {/* Badges */}
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-2 mb-4">
                 {card.is_alumni && (
-                    <span className="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-sm">
+                    <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-medium">
                         Alumni
                     </span>
                 )}
                 {card.is_student && (
-                    <span className="px-3 py-1 bg-green-900/50 text-green-300 rounded-full text-sm">
+                    <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-medium">
                         Student
                     </span>
                 )}
                 {card.willing_to_mentor && (
-                    <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm">
+                    <span className="px-2.5 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-medium">
                         Mentor
-                    </span>
-                )}
-                {card.open_to_projects && (
-                    <span className="px-3 py-1 bg-orange-900/50 text-orange-300 rounded-full text-sm">
-                        Open to Projects
                     </span>
                 )}
             </div>
 
+            {/* Bio/Headline */}
+            {card.headline && (
+                <p className="text-white/80 text-sm mb-6 leading-relaxed">{card.headline}</p>
+            )}
+
             {/* Skills */}
             {card.skill_tags && card.skill_tags.length > 0 && (
-                <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-gray-400 mb-2">Skills</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {card.skill_tags.slice(0, 8).map((skill, index) => (
+                <div className="mt-auto">
+                    <h3 className="text-xs font-medium text-white/40 mb-2">Skills & Interests</h3>
+                    <div className="flex flex-wrap gap-1.5">
+                        {card.skill_tags.slice(0, 6).map((skill, index) => (
                             <span
                                 key={index}
-                                className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs"
+                                className="px-2 py-0.5 bg-white/5 text-white/60 rounded-md text-xs"
                             >
                                 {skill}
                             </span>
@@ -281,27 +330,16 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ card }) => {
                 </div>
             )}
 
-            {/* Seeking Roles */}
-            {card.seeking_roles && card.seeking_roles.length > 0 && (
-                <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-gray-400 mb-2">Seeking</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {card.seeking_roles.map((role, index) => (
-                            <span
-                                key={index}
-                                className="px-2 py-1 bg-blue-900/30 text-blue-300 rounded text-xs"
-                            >
-                                {role}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Location */}
+            {/* Footer Info */}
             {card.location && (
-                <div className="mt-auto pt-4 border-t border-gray-700">
-                    <p className="text-sm text-gray-400">📍 {card.location}</p>
+                <div className="mt-4 pt-4 border-t border-white/10">
+                    <p className="text-xs text-white/40 flex items-center gap-2">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {card.location}
+                    </p>
                 </div>
             )}
         </div>

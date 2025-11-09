@@ -8,7 +8,8 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { BuzzPage } from './pages/BuzzPage';
 import { ProjectRefinerPage } from './pages/ProjectRefinerPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { EventsPage } from './pages/EventsPage'; // Import EventsPage
+import { EventsPage } from './pages/EventsPage';
+import { ElevatePage } from './pages/ElevatePage';
 import { Project, ForumPost, Event } from './types';
 import { mockForumPosts, mockEvents } from './mockData';
 import { fetchProjects, createProject } from './services/apiService';
@@ -69,7 +70,7 @@ const App: React.FC = () => {
     const renderPage = () => {
         switch (activePage) {
             case 'community':
-                return <CommunityPage projects={projects} posts={forumPosts} />;
+                return <CommunityPage projects={projects} posts={forumPosts} onNavigate={setActivePage} />;
             case 'projects':
                 return <ProjectsPage projects={projects} addProject={addProject} />;
             case 'buzz':
@@ -78,10 +79,12 @@ const App: React.FC = () => {
                 return <ProjectRefinerPage />;
             case 'profile':
                 return <ProfilePage />;
-            case 'events': // Add case for events
+            case 'events':
                 return <EventsPage events={events} />;
+            case 'elevate':
+                return <ElevatePage onNavigate={setActivePage} />;
             default:
-                return <CommunityPage projects={projects} posts={forumPosts} />;
+                return <CommunityPage projects={projects} posts={forumPosts} onNavigate={setActivePage} />;
         }
     };
 
