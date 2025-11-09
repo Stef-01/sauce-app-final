@@ -12,6 +12,7 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [exitX, setExitX] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
     
@@ -55,20 +56,26 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
     };
 
     const handleSwipe = async (direction: 'like' | 'pass') => {
-        if (currentIndex >= cards.length) return;
+        if (currentIndex >= cards.length || isAnimating) return;
 
+        setIsAnimating(true);
         const currentCard = cards[currentIndex];
         const userId = 1; // TODO: Get from auth
 
-        await recordSwipe(userId, currentCard.user_id, direction);
+        // Record the swipe in the background
+        recordSwipe(userId, currentCard.user_id, direction).catch(console.error);
 
-        if (currentIndex < cards.length - 1) {
-            setCurrentIndex(currentIndex + 1);
-            x.set(0);
-            y.set(0);
-        } else {
-            await loadCards();
-        }
+        // Wait for exit animation to complete before showing next card
+        setTimeout(() => {
+            if (currentIndex < cards.length - 1) {
+                setCurrentIndex(currentIndex + 1);
+                x.set(0);
+                y.set(0);
+                setIsAnimating(false);
+            } else {
+                loadCards().finally(() => setIsAnimating(false));
+            }
+        }, 300); // Match the exit animation duration
     };
 
         const handleDragEnd = (event: any, info: any) => {
@@ -137,14 +144,15 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
 
             {/* Card Stack */}
             <div className="relative h-[600px] mb-6">
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                     {/* Next card (background) */}
-                    {cards[currentIndex + 1] && (
+                    {cards[currentIndex + 1] && !isAnimating && (
                         <motion.div
+                            key={`bg-${currentIndex + 1}`}
                             className="absolute inset-0"
-                            initial={{ scale: 0.95, opacity: 0.5 }}
+                            initial={{ scale: 0.9, opacity: 0.3 }}
                             animate={{ scale: 0.95, opacity: 0.5 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
                         >
                             <ProfileCard card={cards[currentIndex + 1]} />
                         </motion.div>
@@ -166,13 +174,14 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
                         dragElastic={0.7}
                         onDragEnd={handleDragEnd}
                         whileDrag={{ cursor: "grabbing" }}
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ 
+                        initial={{ scale: 1, opacity: 1, x: 0 }}
+                        animate={{ scale: 1, opacity: 1, x: 0 }}
+                        exit={{
                             x: exitX,
                             opacity: 0,
-                            scale: 0.9,
-                            transition: { duration: 0.2 }
+                            scale: 0.8,
+                            rotate: exitX > 0 ? 20 : -20,
+                            transition: { duration: 0.3, ease: "easeOut" }
                         }}
                         transition={{
                             type: "spring",
@@ -208,13 +217,16 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
             {/* Action Buttons */}
             <div className="flex justify-center items-center gap-6">
                 <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: isAnimating ? 1 : 1.1 }}
+                    whileTap={{ scale: isAnimating ? 1 : 0.95 }}
                     onClick={() => {
-                        setExitX(-300);
-                        handleSwipe('pass');
+                        if (!isAnimating) {
+                            setExitX(-300);
+                            handleSwipe('pass');
+                        }
                     }}
-                    className="w-14 h-14 rounded-full bg-rose-500/20 hover:bg-rose-500/30 backdrop-blur-xl flex items-center justify-center text-rose-500 transition-colors"
+                    disabled={isAnimating}
+                    className={`w-14 h-14 rounded-full bg-rose-500/20 hover:bg-rose-500/30 backdrop-blur-xl flex items-center justify-center text-rose-500 transition-colors ${isAnimating ? 'opacity-50 cursor-not-allowed' : ''}`}
                     aria-label="Pass"
                 >
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -222,13 +234,16 @@ export const ElevatePage: React.FC<ElevatePageProps> = ({ onNavigate }) => {
                     </svg>
                 </motion.button>
                 <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: isAnimating ? 1 : 1.1 }}
+                    whileTap={{ scale: isAnimating ? 1 : 0.95 }}
                     onClick={() => {
-                        setExitX(300);
-                        handleSwipe('like');
+                        if (!isAnimating) {
+                            setExitX(300);
+                            handleSwipe('like');
+                        }
                     }}
-                    className="w-14 h-14 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 backdrop-blur-xl flex items-center justify-center text-emerald-500 transition-colors"
+                    disabled={isAnimating}
+                    className={`w-14 h-14 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 backdrop-blur-xl flex items-center justify-center text-emerald-500 transition-colors ${isAnimating ? 'opacity-50 cursor-not-allowed' : ''}`}
                     aria-label="Like"
                 >
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
