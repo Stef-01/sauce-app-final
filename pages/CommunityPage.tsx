@@ -29,84 +29,52 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ projects, posts, o
             <h1 className="text-3xl font-bold mb-6">Community</h1>
 
             {/* Navigation Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="flex gap-4 mb-8">
                 {/* Elevate Card */}
-                <div
+                <button
                     onClick={() => handleNavigate('elevate')}
-                    className="bg-gradient-to-br from-blue-900/50 to-blue-800/50 border border-blue-700 rounded-xl p-8 cursor-pointer hover:border-blue-500 transition-all hover:scale-105"
+                    className="group relative flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-xl cursor-pointer transition-all"
                 >
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-white">Elevate</h2>
-                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                            <svg
-                                className="w-6 h-6 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                />
-                            </svg>
-                        </div>
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            />
+                        </svg>
                     </div>
-                    <p className="text-gray-300 mb-4">
-                        Swipe through profiles of students and alumni. Connect with people who share your interests, skills, and goals.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-sm">
-                            Tinder-style
-                        </span>
-                        <span className="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-sm">
-                            AI Matched
-                        </span>
-                        <span className="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-sm">
-                            Networking
-                        </span>
-                    </div>
-                </div>
+                    <span className="text-sm font-medium text-white/90 group-hover:text-white">Elevate</span>
+                </button>
 
                 {/* Network Map Card */}
-                <div
+                <button
                     onClick={() => handleNavigate('network-map')}
-                    className="bg-gradient-to-br from-purple-900/50 to-purple-800/50 border border-purple-700 rounded-xl p-8 cursor-pointer hover:border-purple-500 transition-all hover:scale-105"
+                    className="group relative flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-xl cursor-pointer transition-all"
                 >
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-white">Network Map</h2>
-                        <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
-                            <svg
-                                className="w-6 h-6 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                                />
-                            </svg>
-                        </div>
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                            />
+                        </svg>
                     </div>
-                    <p className="text-gray-300 mb-4">
-                        Explore the Stanford alumni network. See which alumni work at which companies and discover connections.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm">
-                            Visual Graph
-                        </span>
-                        <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm">
-                            Alumni Network
-                        </span>
-                        <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm">
-                            Companies
-                        </span>
-                    </div>
-                </div>
+                    <span className="text-sm font-medium text-white/90 group-hover:text-white">Network Map</span>
+                </button>
             </div>
 
             {/* Existing Content */}

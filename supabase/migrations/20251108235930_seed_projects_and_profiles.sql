@@ -23,7 +23,10 @@ INSERT INTO projects (
     key_deliverables,
     required_skills,
     selection_signals,
-    primary_skill_tags
+    primary_skill_tags,
+    logo,
+    location,
+    is_remote
 ) VALUES
 ('Google DeepMind',
  'Evaluating Alignment Between Open AI Safety Benchmarks and Real Product Surfaces',
@@ -59,7 +62,10 @@ INSERT INTO projects (
    'llm_products',
    'research_methods',
    'technical_writing'
- ]
+ ],
+ 'https://logo.clearbit.com/deepmind.com',
+ 'London, UK',
+ true
 ),
 ('Microsoft',
  'Responsible AI UX Patterns for Copilot in Early Career Workflows',
@@ -95,7 +101,10 @@ INSERT INTO projects (
    'figma',
    'responsible_ai',
    'copilot_power_user'
- ]
+ ],
+ 'https://logo.clearbit.com/microsoft.com',
+ 'Redmond, WA',
+ true
 ),
 ('OpenAI',
  'Rapid Evaluation Framework for Domain Specific Tutor Agents',
@@ -129,7 +138,10 @@ INSERT INTO projects (
    'prompt_engineering',
    'hci_literacy',
    'teaching_experience'
- ]
+ ],
+ 'https://logo.clearbit.com/openai.com',
+ 'San Francisco, CA',
+ true
 ),
 ('Anthropic',
  'Critical Portfolio on the Impact of Frontier AI on the Job Market',
@@ -162,7 +174,10 @@ INSERT INTO projects (
    'research_synthesis',
    'critical_writing',
    'qualitative_methods'
- ]
+ ],
+ 'https://logo.clearbit.com/anthropic.com',
+ 'San Francisco, CA',
+ true
 ),
 ('Meta',
  'Meta Glasses Companion for Wearable and Health Data Visual Storytelling',
@@ -197,7 +212,235 @@ INSERT INTO projects (
    'ar_ui',
    'privacy_by_design',
    'healthtech'
- ]
+ ],
+ 'https://logo.clearbit.com/meta.com',
+ 'Menlo Park, CA',
+ true
+),
+('Stripe',
+ 'Fraud Detection Explainability for Payment Risk Models',
+ 3, 5, 7, 2, 3,
+ 'Build an explainability layer for Stripe''s ML fraud detection models that surfaces understandable reasons for transaction blocks to merchants and end users without compromising security.',
+ ARRAY[
+   'Research existing explainability techniques for fraud detection systems',
+   'Design user facing explanations that balance transparency with security concerns',
+   'Prototype dashboard interface showing risk signals and merchant actions'
+ ],
+ ARRAY[
+   'Technical design doc with security tradeoff analysis',
+   'Interactive Figma prototype or React dashboard for merchant risk view',
+   'User testing report with 5-8 merchant interviews'
+ ],
+ ARRAY[
+   'Product design',
+   'Frontend development (React)',
+   'Understanding of ML explainability techniques',
+   'Security minded design thinking',
+   'User research and testing'
+ ],
+ ARRAY[
+   'Experience with payments or fintech products',
+   'Portfolio showing complex dashboard or data visualization work'
+ ],
+ ARRAY[
+   'explainability',
+   'fraud_detection',
+   'react',
+   'product_design',
+   'fintech',
+   'user_research',
+   'security'
+ ],
+ 'https://logo.clearbit.com/stripe.com',
+ 'San Francisco, CA',
+ true
+),
+('Figma',
+ 'AI Design Assistant Interaction Patterns for Collaborative Workflows',
+ 4, 6, 8, 2, 2,
+ 'Design and prototype interaction patterns for AI assisted design features in Figma that support creativity without disrupting collaborative workflows or designer agency.',
+ ARRAY[
+   'Analyze current designer workflows through interviews and usage data',
+   'Identify moments where AI assistance adds value vs creates friction',
+   'Design 3-4 interaction patterns for features like auto layout, component suggestions, and design critiques'
+ ],
+ ARRAY[
+   'Interaction design specification with Figma prototypes',
+   'Research synthesis from 10+ designer interviews',
+   'Metrics framework for measuring AI feature success without cannibalizing core value'
+ ],
+ ARRAY[
+   'Figma power user expertise',
+   'Interaction design and prototyping',
+   'User research and synthesis',
+   'Understanding of AI/ML capabilities',
+   'Collaborative design processes'
+ ],
+ ARRAY[
+   'Strong portfolio with interaction design work',
+   'Experience designing for creative tools or designer workflows'
+ ],
+ ARRAY[
+   'figma',
+   'interaction_design',
+   'user_research',
+   'ai_ux',
+   'design_tools',
+   'prototyping'
+ ],
+ 'https://logo.clearbit.com/figma.com',
+ 'San Francisco, CA',
+ true
+),
+('Notion',
+ 'Context Aware AI Writing Assistant for Knowledge Work',
+ 3, 5, 7, 1, 2,
+ 'Design and prototype context aware AI writing features for Notion that leverage workspace knowledge graph to provide relevant suggestions while maintaining user trust and data privacy.',
+ ARRAY[
+   'Map knowledge work patterns and identify high value AI intervention points',
+   'Design context retrieval and ranking system respecting privacy boundaries',
+   'Build prototype demonstrating 2-3 AI writing features with workspace context'
+ ],
+ ARRAY[
+   'Functional prototype using OpenAI or Anthropic API with mock workspace data',
+   'Privacy and trust design framework document',
+   'User testing insights from 8-10 knowledge workers'
+ ],
+ ARRAY[
+   'Full stack development (React, Node.js)',
+   'LLM API integration and prompt engineering',
+   'Information retrieval and ranking',
+   'Privacy by design principles',
+   'Product thinking'
+ ],
+ ARRAY[
+   'Experience building with LLM APIs',
+   'Portfolio showing end-to-end product work'
+ ],
+ ARRAY[
+   'react',
+   'nodejs',
+   'llm_apis',
+   'prompt_engineering',
+   'information_retrieval',
+   'privacy_by_design',
+   'product_engineering'
+ ],
+ 'https://logo.clearbit.com/notion.so',
+ 'San Francisco, CA',
+ true
+),
+('Scale AI',
+ 'Quality Framework for Human in the Loop ML Data Pipelines',
+ 4, 6, 8, 2, 3,
+ 'Design a systematic quality framework for HITL data annotation workflows that balances labeler expertise, throughput, and model performance downstream.',
+ ARRAY[
+   'Survey existing annotation quality metrics and their limitations',
+   'Design multi dimensional quality score incorporating agreement, edge case handling, and downstream impact',
+   'Build evaluation dashboard tracking quality across projects and labeler cohorts'
+ ],
+ ARRAY[
+   'Quality framework technical specification',
+   'Python based prototype dashboard with sample annotation data',
+   'Recommendations doc for Scale platform integration'
+ ],
+ ARRAY[
+   'Python and data analysis',
+   'ML evaluation metrics',
+   'Dashboard development (Streamlit or React)',
+   'Understanding of annotation workflows',
+   'Statistical thinking'
+ ],
+ ARRAY[
+   'Experience with ML data pipelines or annotation platforms',
+   'Portfolio showing data analysis or evaluation work'
+ ],
+ ARRAY[
+   'python',
+   'data_analysis',
+   'ml_evaluation',
+   'dashboard_development',
+   'annotation_quality',
+   'statistics'
+ ],
+ 'https://logo.clearbit.com/scale.com',
+ 'San Francisco, CA',
+ true
+),
+('Databricks',
+ 'LLM Observability and Debugging Tools for Production ML Pipelines',
+ 4, 6, 8, 2, 3,
+ 'Build observability and debugging tools for LLM powered features in production ML pipelines, focusing on output quality monitoring and failure mode detection.',
+ ARRAY[
+   'Design metrics and logging schema for LLM pipeline observability',
+   'Build real time dashboard for output quality, latency, and cost tracking',
+   'Create automated alerting for common LLM failure modes'
+ ],
+ ARRAY[
+   'Open source observability toolkit with Python SDK',
+   'Interactive dashboard built with Streamlit or Plotly',
+   'Integration guide for Databricks MLflow'
+ ],
+ ARRAY[
+   'Python development',
+   'LLM APIs and prompt engineering',
+   'Distributed systems and logging',
+   'Dashboard and data visualization',
+   'ML ops principles'
+ ],
+ ARRAY[
+   'Experience with production ML systems',
+   'Understanding of observability and monitoring tools'
+ ],
+ ARRAY[
+   'python',
+   'llm_apis',
+   'mlops',
+   'observability',
+   'data_visualization',
+   'distributed_systems'
+ ],
+ 'https://logo.clearbit.com/databricks.com',
+ 'San Francisco, CA',
+ true
+),
+('Airbnb',
+ 'Trust and Safety AI for Listing Verification and Review Analysis',
+ 3, 5, 7, 2, 3,
+ 'Design AI powered trust and safety features for automated listing verification and review analysis that surface fraud signals while minimizing false positives.',
+ ARRAY[
+   'Analyze existing listing verification and review patterns for fraud signals',
+   'Design ML pipeline for image verification, review sentiment, and anomaly detection',
+   'Build user facing trust indicators that communicate safety without creating alarm'
+ ],
+ ARRAY[
+   'Technical architecture for trust and safety ML pipeline',
+   'Prototype interface showing trust indicators and host verification status',
+   'Evaluation framework with precision/recall targets and user trust metrics'
+ ],
+ ARRAY[
+   'ML and computer vision basics',
+   'NLP and sentiment analysis',
+   'Product design and UX',
+   'React or similar frontend framework',
+   'Trust and safety domain knowledge'
+ ],
+ ARRAY[
+   'Experience in trust and safety, fraud detection, or marketplace products',
+   'Portfolio showing ML application or product work'
+ ],
+ ARRAY[
+   'computer_vision',
+   'nlp',
+   'trust_safety',
+   'product_design',
+   'react',
+   'fraud_detection',
+   'marketplace_dynamics'
+ ],
+ 'https://logo.clearbit.com/airbnb.com',
+ 'San Francisco, CA',
+ true
 );
 
 -- Example matching query as a helpful reference (use :user_skill_tags param when running via client)
